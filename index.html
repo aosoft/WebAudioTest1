@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebAudio</title>
+</head>
+<body>
+    <button id="button">START</button>
+<script type="module">
+    const context = new AudioContext({ sampleRate: 48000.0 });
+    document.addEventListener('DOMContentLoaded', () => {
+        context.audioWorklet.addModule('./sinewave.js').then(() => {
+            const sinewave = new AudioWorkletNode(context, 'sine-wave');
+            document.getElementById('button').addEventListener('click', async (event) => {
+                if (context.state !== 'running') {
+                    await context.resume();
+                }
+
+                const button = event.target;
+
+                if (button.textContent === 'START') {
+                    sinewave.connect(context.destination);
+
+                    button.textContent = 'STOP';
+                } else {
+                    sinewave.disconnect(0);
+
+                    button.textContent = 'START';
+                }
+            }, false);
+        });
+    }, false);
+
+</script>
+</body>
+</html>
